@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         # 1.17 e 1.18 já estão bem defasadas. Use versões modernas se possível.
-        go_version: ['1.23', '>=1.23'] 
+        go_version: ['oldstable', '1.25', '>=1.25'] 
     
     steps:
     - uses: actions/checkout@v4 # Atualizado para v4
