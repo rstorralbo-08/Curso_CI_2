@@ -7,9 +7,8 @@ on:
     branches: [ '*' ]
 
 jobs:
-
   test:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest  # Foque no mais recente primeiro
     env:
       HOST: localhost
       PORT: 5432
@@ -18,33 +17,35 @@ jobs:
       DBNAME: root
     strategy:
       matrix:
-        go_version: ['1.18', '1.17', '>=1.18']
-        os: ['ubuntu-latest', 'ubuntu-18.04']
+        # 1.17 e 1.18 já estão bem defasadas. Use versões modernas se possível.
+        go_version: ['1.21', '1.22'] 
+    
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4 # Atualizado para v4
 
     - name: Set up Go
-      uses: actions/setup-go@v3
+      uses: actions/setup-go@v5 # Atualizado para v5
       with:
         go-version: ${{ matrix.go_version }}
       
-    - name: Build-DB
-      run: docker-compose build
-      
-    - name: Create-DB
-      run: docker-compose up -d
+    - name: Build and Start DB
+      run: |
+        docker-compose up -d
+        # Aguarda o banco de dados estar pronto de fato (10 segundos costumam bastar)
+        sleep 10 
 
     - name: Test
-      run: go test -v main_test.go 
+      # O ./... garante que ele compile o pacote inteiro antes de testar
+      run: go test -v ./... 
       
-  
   build:
     needs: test
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: ['ubuntu-18.04']
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.22'
     - name: Build
-      run: go build -v main.go
+      run: go build -v -o main . # Gera o executável
