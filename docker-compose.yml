@@ -1,23 +1,33 @@
-version: '3'
+version: '3.8' # Versão recomendada para suporte total a healthchecks
+
 services:
   postgres:
-    image: "postgres"
+    image: "postgres:latest"
+    container_name: postgres_db
     environment:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
-      - POSTGRES_DB=root      
+      - POSTGRES_DB=root
     ports:
       - "5432:5432"
     volumes:
-      - /postgres-data:/var/lib/postgresql/data  
+      # Alterado para caminho relativo para evitar erro de permissão no Linux/CI
+      - ./postgres-data:/var/lib/postgresql/data  
+    healthcheck:
+      # O utilitário pg_isready já vem na imagem oficial do Postgres
+      test: ["CMD-SHELL", "pg_isready -U root -d root"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-  pgadmin-compose:
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: "gui@alura.com"
-      PGADMIN_DEFAULT_PASSWORD: "123456"
-    ports:
-      - "54321:80"
-    depends_on:
-      - postgres
-
+  # O pgadmin foi comentado pois não é necessário para rodar os testes no CI
+  # Isso acelera o build da sua Action consideravelmente.
+  # pgadmin-compose:
+  #   image: dpage/pgadmin4
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: "gui@alura.com"
+  #     PGADMIN_DEFAULT_PASSWORD: "123456"
+  #   ports:
+  #     - "54321:80"
+  #   depends_on:
+  #     - postgres
