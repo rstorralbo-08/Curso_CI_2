@@ -24,7 +24,7 @@ jobs:
     - uses: actions/checkout@v4 # Atualizado para v4
 
     - name: Set up Go
-      uses: actions/setup-go@latest # Atualizado para v5
+      uses: actions/setup-go@v6 # Atualizado para v5
       with:
         go-version: ${{ matrix.go_version }}
       
