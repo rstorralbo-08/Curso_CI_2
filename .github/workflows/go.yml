@@ -18,13 +18,13 @@ jobs:
     strategy:
       matrix:
         # 1.17 e 1.18 já estão bem defasadas. Use versões modernas se possível.
-        go_version: ['1.21', '1.22'] 
+        go_version: ['1.23', '>=1.23'] 
     
     steps:
     - uses: actions/checkout@v4 # Atualizado para v4
 
     - name: Set up Go
-      uses: actions/setup-go@v5 # Atualizado para v5
+      uses: actions/setup-go@latest # Atualizado para v5
       with:
         go-version: ${{ matrix.go_version }}
       
