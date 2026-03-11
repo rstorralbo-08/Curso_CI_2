@@ -36,16 +36,24 @@ jobs:
       run: docker compose up -d
 
     - name: Wait for DB
-      # Em vez de sleep, verificamos se o serviço está saudável
       run: |
         for i in {1..20}; do
-          if [ "$(docker inspect -f {{.State.Health.Status}} $(docker compose ps -q postgres))" == "healthy" ]; then
-            echo "Banco pronto!"
-            break
+          # Captura o ID do container com segurança
+          CONTAINER_ID=$(docker compose ps -q postgres)
+          
+          if [ -n "$CONTAINER_ID" ]; then
+            STATUS=$(docker inspect -f '{{.State.Health.Status}}' $CONTAINER_ID)
+            if [ "$STATUS" == "healthy" ]; then
+              echo "Banco pronto e saudável!"
+              exit 0
+            fi
           fi
-          echo "Aguardando banco..."
+          
+          echo "Aguardando banco inicializar ($i/20)..."
           sleep 2
         done
+        echo "O banco demorou demais para subir!"
+        exit 1
 
     - name: Test
       # O ./... garante que ele compile o pacote inteiro antes de testar
