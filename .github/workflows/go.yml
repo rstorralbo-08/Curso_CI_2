@@ -5,7 +5,9 @@ on:
     branches: [ '*' ]
   pull_request:
     branches: [ '*' ]
-
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  
 jobs:
   test:
     runs-on: ubuntu-latest  # Foque no mais recente primeiro
