@@ -1,4 +1,4 @@
-version: '3.8' # Versão recomendada para suporte total a healthchecks
+#version: '3.8' # Versão recomendada para suporte total a healthchecks
 
 services:
   postgres:
