@@ -18,9 +18,9 @@ jobs:
       PASSWORD: root
       DBNAME: root
     strategy:
+      fail-fast: false # Não cancela os outros se um falhar
       matrix:
-        # 1.17 e 1.18 já estão bem defasadas. Use versões modernas se possível.
-        go_version: ['oldstable', '1.25', '>=1.25'] 
+        go_version: ['1.24', '1.25'] # Versões estáveis para 2026
     
     steps:
     - uses: actions/checkout@v5 # Atualizado para v4
@@ -30,11 +30,22 @@ jobs:
       with:
         go-version: ${{ matrix.go_version }}
       
-    - name: Build and Start DB
+    - name: Start Database
+      # Usando docker-compose up direto. 
+      # Dica: No seu docker-compose.yml, adicione um 'healthcheck' ao serviço de banco.
+      run: docker-compose up -d
+
+    - name: Wait for DB
+      # Em vez de sleep, verificamos se o serviço está saudável
       run: |
-        docker-compose up -d
-        # Aguarda o banco de dados estar pronto de fato (10 segundos costumam bastar)
-        sleep 10 
+        for i in {1..20}; do
+          if [ "$(docker inspect -f {{.State.Health.Status}} $(docker-compose ps -q db))" == "healthy" ]; then
+            echo "Banco pronto!"
+            break
+          fi
+          echo "Aguardando banco..."
+          sleep 2
+        done
 
     - name: Test
       # O ./... garante que ele compile o pacote inteiro antes de testar
