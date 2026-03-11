@@ -33,7 +33,7 @@ jobs:
     - name: Start Database
       # Usando docker-compose up direto. 
       # Dica: No seu docker-compose.yml, adicione um 'healthcheck' ao serviço de banco.
-      run: docker-compose up -d
+      run: docker compose up -d
 
     - name: Wait for DB
       # Em vez de sleep, verificamos se o serviço está saudável
