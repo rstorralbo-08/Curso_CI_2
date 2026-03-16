@@ -12,7 +12,7 @@ services:
       - "5432:5432"
     volumes:
       # Ajustado para o padrão do Postgres 18+
-      - ./data:/var/lib/postgresql
+      - postgres_data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U root -d root"]
       interval: 5s
