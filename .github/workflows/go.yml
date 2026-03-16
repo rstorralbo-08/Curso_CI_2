@@ -39,7 +39,6 @@ jobs:
       run: |
         for i in {1..20}; do
           # Captura o ID do container com segurança
-          docker compose ps -q postgres
           CONTAINER_ID=$(docker compose ps -q postgres)
           
           if [ -n "$CONTAINER_ID" ]; then
