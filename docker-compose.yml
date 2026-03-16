@@ -11,10 +11,9 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      # Alterado para caminho relativo para evitar erro de permissão no Linux/CI
-      - ./postgres-data:/var/lib/postgresql/data  
+      # Ajustado para o padrão do Postgres 18+
+      - ./data:/var/lib/postgresql
     healthcheck:
-      # O utilitário pg_isready já vem na imagem oficial do Postgres
       test: ["CMD-SHELL", "pg_isready -U root -d root"]
       interval: 5s
       timeout: 5s
