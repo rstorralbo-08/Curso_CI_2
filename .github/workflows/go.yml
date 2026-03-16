@@ -39,7 +39,8 @@ jobs:
       run: |
         for i in {1..20}; do
           # Captura o ID do container com segurança
-          CONTAINER_ID=$(docker compose ps -q postgres_db)
+          docker compose ps -q postgres
+          CONTAINER_ID=$(docker compose ps -q postgres)
           
           if [ -n "$CONTAINER_ID" ]; then
             STATUS=$(docker inspect -f '{{.State.Health.Status}}' $CONTAINER_ID)
