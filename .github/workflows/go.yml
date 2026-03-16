@@ -43,6 +43,7 @@ jobs:
           CONTAINER_ID=$(docker compose ps -q postgres)
           
           if [ -n "$CONTAINER_ID" ]; then
+            docker inspect -f '{{.State}}' $CONTAINER_ID
             STATUS=$(docker inspect -f '{{.State.Health.Status}}' $CONTAINER_ID)
             if [ "$STATUS" == "healthy" ]; then
               echo "Banco pronto e saudável!"
