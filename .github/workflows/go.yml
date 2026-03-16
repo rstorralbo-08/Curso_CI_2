@@ -5,11 +5,13 @@ on:
     branches: [ '*' ]
   pull_request:
     branches: [ '*' ]
-
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  
 jobs:
-
   test:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }} #ubuntu-latest  # Foque no mais recente primeiro
+    
     env:
       HOST: localhost
       PORT: 5432
@@ -17,34 +19,60 @@ jobs:
       PASSWORD: root
       DBNAME: root
     strategy:
+      fail-fast: false # Não cancela os outros se um falhar
       matrix:
-        go_version: ['1.18', '1.17', '>=1.18']
-        os: ['ubuntu-latest', 'ubuntu-18.04']
+        go_version: ['1.24', '1.25'] # Versões estáveis para 2026
+        os: ['ubuntu-latest', 'ubuntu-24.04']
+    
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v5 # Atualizado para v4
 
     - name: Set up Go
-      uses: actions/setup-go@v3
+      uses: actions/setup-go@v6 # Atualizado para v5
       with:
         go-version: ${{ matrix.go_version }}
       
-    - name: Build-DB
-      run: docker-compose build
-      
-    - name: Create-DB
-      run: docker-compose up -d
+    - name: Start Database
+      # Usando docker-compose up direto. 
+      # Dica: No seu docker-compose.yml, adicione um 'healthcheck' ao serviço de banco.
+      run: docker compose up -d
+
+    - name: Wait for DB
+      run: |
+        for i in {1..20}; do
+          # Captura o ID do container com segurança
+          CONTAINER_ID=$(docker compose ps -q postgres)
+          
+          if [ -n "$CONTAINER_ID" ]; then
+            docker inspect -f '{{.State}}' $CONTAINER_ID
+            STATUS=$(docker inspect -f '{{.State.Health.Status}}' $CONTAINER_ID)
+            if [ "$STATUS" == "healthy" ]; then
+              echo "Banco pronto e saudável!"
+              exit 0
+            fi
+          fi
+          
+          echo "Aguardando banco inicializar ($i/20)..."
+          sleep 20
+        done
+        echo "O banco demorou demais para subir!"
+        exit 1
 
     - name: Test
-      run: go test -v main_test.go 
+      # O ./... garante que ele compile o pacote inteiro antes de testar
+      run: go test -v ./... 
       
-  
   build:
     needs: test
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: ['ubuntu-latest', 'ubuntu-18.04']
+        os: ['ubuntu-latest', 'ubuntu-20.04']
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.22'
     - name: Build
-      run: go build -v main.go
+      run: go build -v -o main . # Gera o executável
