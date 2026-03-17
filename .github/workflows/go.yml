@@ -64,10 +64,7 @@ jobs:
       
   build:
     needs: test
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: ['ubuntu-latest', 'ubuntu-24.04']
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
     - name: Set up Go
@@ -76,7 +73,13 @@ jobs:
         go-version: '1.22'
     - name: Build
       run: go build -v -o main . # Gera o executável
-
+    
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v3.2.2
+      with:
+        name: Aplicacao em Go
+        path: main
+        
   docker:
     needs: build
     uses: ./.github/workflows/Docker.yml
