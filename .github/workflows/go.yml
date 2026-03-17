@@ -75,9 +75,9 @@ jobs:
       run: go build -v -o main . # Gera o executável
     
     - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v3.2.2
+      uses: actions/upload-artifact@v4
       with:
-        name: Aplicacao em Go
+        name: Aplicacao-em-Go
         path: main
         
   docker:
