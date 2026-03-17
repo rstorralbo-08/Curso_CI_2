@@ -67,7 +67,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: ['ubuntu-latest', 'ubuntu-20.04']
+        os: ['ubuntu-latest', 'ubuntu-24.04']
     steps:
     - uses: actions/checkout@v4
     - name: Set up Go
